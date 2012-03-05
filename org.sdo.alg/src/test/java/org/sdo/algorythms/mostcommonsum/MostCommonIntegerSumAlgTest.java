@@ -1,4 +1,4 @@
-package org.sdo.coins;
+package org.sdo.algorythms.mostcommonsum;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
