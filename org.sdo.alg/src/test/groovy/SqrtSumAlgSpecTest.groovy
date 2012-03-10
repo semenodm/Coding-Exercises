@@ -20,5 +20,4 @@ class SqrtSumAlgSpecTest extends Specification {
 		[5, 10, -3, 17, 12, 1, -2, 13, -12]			|2			|5				|27
 		[5, 8, 13, 5, 21, 6, 3, 7, -2, 4, 8, 12]	|3			|10				|52
 	}
-
 }
