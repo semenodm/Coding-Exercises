@@ -8,24 +8,17 @@ import java.util.List;
 public class MergeSort {
 
 	public <T extends Comparable<? super T>> List<T> sort(List<T> arrayInput) {
-		return mergeSort(arrayInput);
+		return mergeSort(arrayInput, new Comparator<T>() {
+			public int compare(T o1, T o2) {
+				return o1.compareTo(o2);
+			}
+		});
 	}
 
 	public <T> List<T> sort(List<T> arrayInput, Comparator<? super T> comparator) {
 		return mergeSort(arrayInput, comparator);
 	}
-
-	private <T extends Comparable<? super T>> LinkedList<T> mergeSort(List<T> array) {
-		System.out.println("sorting " + array);
-		if (array.size() <= 1)
-			return new LinkedList<T>(array);
-		LinkedList<T> left = new LinkedList<T>(array.subList(0, array.size() / 2));
-		LinkedList<T> right = new LinkedList<T>(array.subList(array.size() / 2, array.size()));
-		left = mergeSort(left);
-		right = mergeSort(right);
-		return merge(left, right);
-	}
-
+	
 	private <T> LinkedList<T> mergeSort(List<T> array, Comparator<? super T> comparator) {
 		System.out.println("sorting " + array);
 		if (array.size() <= 1)
@@ -36,22 +29,13 @@ public class MergeSort {
 		right = mergeSort(right, comparator);
 		return merge(left, right, comparator);
 	}
-
-	private <T extends Comparable<? super T>> LinkedList<T> merge(Deque<T> left, Deque<T> right) {
-		return merge(left, right, new Comparator<T>() {
-			public int compare(T o1, T o2) {				
-				return o1.compareTo(o2);
-			}
-		});
-	}
-
+	
 	private <T> LinkedList<T> merge(Deque<T> left, Deque<T> right, Comparator<? super T> comparator) {
 		System.out.println("merging " + left + " and " + right);
 		LinkedList<T> result = new LinkedList<T>();
 		while (!left.isEmpty() || !right.isEmpty()) {
 			T leftInteger = left.poll();
 			T rightInteger = right.poll();
-
 			if (leftInteger != null && rightInteger != null) {
 				int comparisionResult = comparator.compare(leftInteger, rightInteger);
 				if (comparisionResult < 0) {
