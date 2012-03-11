@@ -38,34 +38,11 @@ public class MergeSort {
 	}
 
 	private <T extends Comparable<? super T>> LinkedList<T> merge(Deque<T> left, Deque<T> right) {
-		System.out.println("merging " + left + " and " + right);
-		LinkedList<T> result = new LinkedList<T>();
-		while (!left.isEmpty() || !right.isEmpty()) {
-			T leftInteger = left.poll();
-			T rightInteger = right.poll();
-
-			if (leftInteger != null && rightInteger != null) {
-				if (leftInteger.compareTo(rightInteger) < 0) {
-					result.add(leftInteger);
-					right.push(rightInteger);
-				} else if (leftInteger.compareTo(rightInteger) > 0) {
-					result.add(rightInteger);
-					left.push(leftInteger);
-				} else {
-					result.add(rightInteger);
-					result.add(leftInteger);
-				}
+		return merge(left, right, new Comparator<T>() {
+			public int compare(T o1, T o2) {				
+				return o1.compareTo(o2);
 			}
-
-			if (leftInteger != null && rightInteger == null) {
-				result.add(leftInteger);
-			}
-			if (leftInteger == null && rightInteger != null) {
-				result.add(rightInteger);
-			}
-		}
-		System.out.println("merged " + result);
-		return result;
+		});
 	}
 
 	private <T> LinkedList<T> merge(Deque<T> left, Deque<T> right, Comparator<? super T> comparator) {
@@ -76,10 +53,11 @@ public class MergeSort {
 			T rightInteger = right.poll();
 
 			if (leftInteger != null && rightInteger != null) {
-				if (comparator.compare(leftInteger, rightInteger) < 0) {
+				int comparisionResult = comparator.compare(leftInteger, rightInteger);
+				if (comparisionResult < 0) {
 					result.add(leftInteger);
 					right.push(rightInteger);
-				} else if (comparator.compare(leftInteger, rightInteger) > 0) {
+				} else if (comparisionResult > 0) {
 					result.add(rightInteger);
 					left.push(leftInteger);
 				} else {
