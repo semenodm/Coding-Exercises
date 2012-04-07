@@ -4,9 +4,9 @@ import org.junit.Assert;
 import org.sdo.algorythms.sqrtsecomposition.Algorithm;
 import org.sdo.algorythms.sqrtsecomposition.SqrtDecompositionSum;
 
-import cuke4duke.annotation.I18n.EN.Given;
-import cuke4duke.annotation.I18n.EN.Then;
-import cuke4duke.annotation.I18n.EN.When;
+import cucumber.annotation.en.Given;
+import cucumber.annotation.en.Then;
+import cucumber.annotation.en.When;
 
 
 public class SqrtsumsalgFeature {	

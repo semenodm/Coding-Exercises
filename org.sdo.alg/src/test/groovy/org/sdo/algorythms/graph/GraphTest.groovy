@@ -122,4 +122,15 @@ class GraphTest {
 
 		assertThat(minCut, is(3))
 	}
+	
+	@Test
+	void testEntireAlgorithm1(){
+		def numberOfAttempts = (8 * 8 * Math.log(8)) as Integer
+		def minCut = MinCut.calcMinCutN("./src/test/resources/test2.txt", numberOfAttempts)
+
+
+		assertThat(minCut, is(2))
+	}
+	
+	
 }
