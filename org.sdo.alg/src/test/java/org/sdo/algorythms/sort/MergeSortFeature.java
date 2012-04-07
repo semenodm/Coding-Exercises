@@ -13,7 +13,7 @@ import cucumber.annotation.en.Given;
 import cucumber.annotation.en.Then;
 import cucumber.annotation.en.When;
 
-public class SortCucumberTestImpl {
+public class MergeSortFeature extends BasicCucumberSortTestImpl {
 	private Integer[] inputArray;
 	private MergeSort alg = new MergeSort();
 	private List<Object> actualResult;
@@ -39,14 +39,5 @@ public class SortCucumberTestImpl {
 	public void numberOfInversionsCheck(String num) {
 		Long expectedNumberOfInversions = Long.valueOf(num.trim());
 
-	}
-
-	private Integer[] convertStringToArray(String input) {
-		String[] split = input.split(",");
-		Integer[] out = new Integer[split.length];
-		for (int i = 0; i < out.length; i++) {
-			out[i] = Integer.valueOf(split[i].trim());
-		}
-		return out;
-	}
+	}	
 }
