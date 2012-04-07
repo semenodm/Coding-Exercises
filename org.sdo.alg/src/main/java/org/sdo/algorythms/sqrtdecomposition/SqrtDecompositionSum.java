@@ -1,4 +1,4 @@
-package org.sdo.algorythms.sqrtsecomposition;
+package org.sdo.algorythms.sqrtdecomposition;
 
 import static java.lang.Math.*;
 

@@ -1,7 +1,7 @@
-Feature: Merge Sort Algorithm Feature
+Feature: Quick Sort Algorithm Feature
         In order to ensure that my algorithm works
         As a Developer
-        I want to run a quick Cuke4Duke test
+        I want to run a quick Cucumber test
 
         Scenario Outline: Quick Sort Algorithm Scenario
                 Given The input array to quick sort <input array>

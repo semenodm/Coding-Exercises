@@ -1,15 +1,17 @@
+package org.sdo.algorythms.sqrtdecomposition;
+
 import static org.hamcrest.Matchers.is;
 
 import org.junit.Assert;
-import org.sdo.algorythms.sqrtsecomposition.Algorithm;
-import org.sdo.algorythms.sqrtsecomposition.SqrtDecompositionSum;
+import org.sdo.algorythms.sqrtdecomposition.Algorithm;
+import org.sdo.algorythms.sqrtdecomposition.SqrtDecompositionSum;
 
 import cucumber.annotation.en.Given;
 import cucumber.annotation.en.Then;
 import cucumber.annotation.en.When;
 
 
-public class SqrtsumsalgFeature {	
+public class SqrtSumsAlgFeature {	
 	private Algorithm alg;
 	private int result;
 

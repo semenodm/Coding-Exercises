@@ -2,8 +2,9 @@ import spock.lang.Specification
 
 import static org.junit.Assert.*;
 
-import org.sdo.algorythms.sqrtsecomposition.Algorithm
-import org.sdo.algorythms.sqrtsecomposition.SqrtDecompositionSum
+import org.sdo.algorythms.sqrtdecomposition.Algorithm;
+import org.sdo.algorythms.sqrtdecomposition.SqrtDecompositionSum
+
 
 import spock.lang.Specification;
 

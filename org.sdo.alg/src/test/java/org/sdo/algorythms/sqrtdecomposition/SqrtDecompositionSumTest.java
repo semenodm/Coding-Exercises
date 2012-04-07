@@ -1,9 +1,10 @@
-package org.sdo.algorythms.sqrtsecomposition;
+package org.sdo.algorythms.sqrtdecomposition;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
+import org.sdo.algorythms.sqrtdecomposition.SqrtDecompositionSum;
 
 public class SqrtDecompositionSumTest {
 
