@@ -103,34 +103,5 @@ class GraphTest {
 				hasSize(2),
 				is([3, 3]))
 				));
-	}
-
-	@Test
-	void testEntireAlgorithm(){
-		def numberOfAttempts = (4 * 4 * Math.log(4)) as Integer
-		def minCut = MinCut.calcMinCutN("./src/test/resources/simpleData.txt", numberOfAttempts)
-
-
-		assertThat(minCut, is(2))
-	}
-	
-	@Test
-	void testEntireAlgorithmOnRealData(){
-		def numberOfAttempts = (40 * 40 * Math.log(40)) as Integer
-		def minCut = MinCut.calcMinCutN("./src/test/resources/kargerAdj.txt", numberOfAttempts)
-
-
-		assertThat(minCut, is(3))
-	}
-	
-	@Test
-	void testEntireAlgorithm1(){
-		def numberOfAttempts = (8 * 8 * Math.log(8)) as Integer
-		def minCut = MinCut.calcMinCutN("./src/test/resources/test2.txt", numberOfAttempts)
-
-
-		assertThat(minCut, is(2))
-	}
-	
-	
+	}		
 }
