@@ -1,0 +1,25 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+def selenium_version = '2.20.0'
+
+repositories { mavenCentral() }
+
+task initProject() << {
+	if (hasProperty(initPlugins)) {
+		initPlugins.split(',').each { plug ->
+			project.apply {
+				plugin(plug.trim())
+			}
+		}
+	}
+
+	project.sourceSets.all*.allSource.srcDirs.flatten().each { dir ->
+		dir.mkdirs()
+	}
+}
+
+dependencies{
+	groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.8.6'
+	compile "org.codehaus.geb:geb-core:0.6.1", "org.seleniumhq.selenium:selenium-firefox-driver:${selenium_version}", "org.seleniumhq.selenium:selenium-support:${selenium_version}", "org.apache.ivy:ivy:latest.release"
+}
