@@ -8,7 +8,56 @@ class Graph {
 	def nodeSize = 0
 	def vertices = [:] as HashMap
 	def reversedVertices = [:] as HashMap
-def leaderSize
+	def leaderSize
+	def edges = []
+	
+	public Graph(List adjacencyList){
+		adjacencyList.each { vertexConnections ->
+			def vertexLabel = vertexConnections.head()
+			def connectedVertices = vertexConnections.tail()
+			vertices[vertexLabel] = connectedVertices.collect {it[0]} 
+			connectedVertices.each{edges << [from : vertexLabel, to : it[0], weight : it[1]]}
+		}
+	}
+			
+	def runDijkstra(def from, def to){
+		def X = [:]
+		X[from] = 0
+		runDijkstra(from, to, X)		
+	}
+	
+	def runDijkstra(def from, def to, def accum){
+		if(to == from) return accum[from]
+		
+		def edges = extractCutEdges(accum)
+		if(edges.isEmpty()) return -1
+		
+		def e = edges.min {accum[it.from] + it.weight}
+		accum[e.to] = accum[e.from] + e.weight
+		
+		runDijkstra(e.to, to, accum)
+	}
+	
+	def getVerticeLength(){
+		vertices.size()
+	}
+	
+	def getEdgeLength(){
+		edges.size()
+	}
+	
+	def vertixReferes(def vertex){		 
+		vertices[vertex]
+	}
+	
+	def containsEdges(def ... edgesToExamine){		
+		edgesToExamine.every {edges.contains(it)}
+	}
+	
+	def extractCutEdges(def X){		
+		edges.findAll { e -> X.containsKey(e.from) && !X.containsKey(e.to)}
+	}
+	
 	void parsGraph(def pathToFile){
 		new File(pathToFile).eachLine { line ->
 			++nodeSize
@@ -108,5 +157,13 @@ def leaderSize
 		seed.childVertices.each { childVertex ->
 			walkReverseGraph(childVertex.finishedTimes, graphEventHandler)
 		}
+	}
+	
+	String toString(){
+		vertices1.each {
+			println it.key.class
+			}
+		"""${vertices1.dump()}
+		${edges.dump()}"""
 	}
 }
