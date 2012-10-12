@@ -24,6 +24,23 @@ class DijkstraAlgoTest {
 		//then
 		assertThat(pathLength, is(6))		
 	}
+    
+    @Test
+    void we_expect_that_direct_edge_with_high_weight_will_not_break_algo(){
+        //given a graph with 4 nodes
+        def graph = new Graph(
+            [
+                ['1', ['2', 1], ['3', 4], ['4', 20]],
+                ['2', ['3', 2], ['4', 6]],
+                ['3', ['4', 3]],
+                ['4']
+            ]
+        )
+        //when
+        def pathLength = graph.runDijkstra('1', '4')
+        //then
+        assertThat(pathLength, is(6))
+    }
 	
 	@Test
 	void we_expect_that_another_graph_has_path_4_length(){
