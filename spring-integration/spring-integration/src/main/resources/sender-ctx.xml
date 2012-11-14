@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+	http://www.springframework.org/schema/integration/stream
+    http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd">
+
+
+	<int:gateway service-interface="org.sdo.spring.integration.senders.ISender"
+		id="sender" default-request-channel="exectution-channel" />
+
+	<int:channel id="exectution-channel">
+		<int:interceptors>
+			<int:wire-tap channel="backup" />
+		</int:interceptors>
+	</int:channel>
+
+	<int-stream:stdout-channel-adapter
+		id="consoleOut" channel="exectution-channel" append-newline="true" />
+		
+	<int:channel id="backup"/>
+	
+	<int:transformer id="backupTransformer" input-channel="backup" expression="'backuped ' + payload + ' message'" output-channel="backupWriter"/>
+	
+	<int-stream:stdout-channel-adapter
+		id="backupWriter" append-newline="true" />
+
+</beans>
