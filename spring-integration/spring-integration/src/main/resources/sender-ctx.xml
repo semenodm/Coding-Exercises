@@ -12,19 +12,22 @@
 		id="sender" default-request-channel="exectution-channel" />
 
 	<int:channel id="exectution-channel">
+		<int:dispatcher load-balancer="none" />
 		<int:interceptors>
-			<int:wire-tap channel="backup" />
+			<int:wire-tap channel="backupChennel" />
 		</int:interceptors>
 	</int:channel>
 
-	<int-stream:stdout-channel-adapter
-		id="consoleOut" channel="exectution-channel" append-newline="true" />
-		
-	<int:channel id="backup"/>
-	
-	<int:transformer id="backupTransformer" input-channel="backup" expression="'backuped ' + payload + ' message'" output-channel="backupWriter"/>
-	
-	<int-stream:stdout-channel-adapter
-		id="backupWriter" append-newline="true" />
+	<int:outbound-channel-adapter id="mainChennel"
+		order="1" ref="queueHandler" method="handleMessage" channel="exectution-channel" />
 
+	<int:outbound-channel-adapter id="failChennel"
+		order="2" ref="failHandler" method="handleMessage" channel="exectution-channel" />
+
+	<int:outbound-channel-adapter id="backupChennel"
+		 ref="backupHandler" method="handleMessage" />
+
+	<bean id="queueHandler" class="org.sdo.spring.integration.senders.TestMessageHandaler" />
+	<bean id="failHandler" class="org.sdo.spring.integration.senders.TestMessageHandaler" />
+	<bean id="backupHandler" class="org.sdo.spring.integration.senders.TestMessageHandaler" />
 </beans>
