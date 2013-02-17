@@ -10,8 +10,8 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class Domino {
-    private final int right;
-    private final int left;
+    private int right;
+    private int left;
 
     @Override
     public String toString() {
@@ -59,12 +59,30 @@ public class Domino {
     }
 
     private static boolean matches(Side side, Domino first, Domino second) {
-        if (side == Side.LEFT && (first.left == second.right || first.left == second.left)) {
-            return true;
-        } else if (side == Side.RIGHT && (first.right == second.right || first.right == second.left)) {
-            return true;
+        if (side == Side.LEFT) {
+            if (first.left == second.left) {
+                second.swap();
+                return true;
+            } else if (first.left == second.right) {
+                return true;
+            }
+            return false;
+        } else if (side == Side.RIGHT) {
+            if (first.right == second.right) {
+                second.swap();
+                return true;
+            } else if (first.right == second.left) {
+                return true;
+            }
+            return false;
         } else {
             return false;
         }
+    }
+
+    private void swap() {
+        int temp = left;
+        left = right;
+        right = temp;
     }
 }

@@ -25,8 +25,9 @@ public class DominoTest {
         inputSetOfDomino.add(new Domino(5, 3));
         inputSetOfDomino.add(new Domino(6, 2));
         inputSetOfDomino.add(new Domino(5, 5));
+        inputSetOfDomino.add(new Domino(3, 6));
         System.out.println(Domino.calcLongestChain(inputSetOfDomino));
-        assertThat(Domino.calcLongestChain(inputSetOfDomino).size(), is(4));
+        assertThat(Domino.calcLongestChain(inputSetOfDomino).size(), is(5));
     }
 
 
