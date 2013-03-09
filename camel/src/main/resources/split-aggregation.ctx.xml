@@ -5,7 +5,7 @@
     <bean id="csvRowFormatter" class="org.sdo.camel.CsvRowFormatter"/>
     <bean id="orderStrategy" class="org.sdo.camel.MyOrderStrategy"/>
     <camel:camelContext id="test_context">
-        <camel:route>
+        <camel:route id="test_route">
             <camel:from uri="direct:input"/>
             <camel:split strategyRef="orderStrategy">
                 <camel:simple>body</camel:simple>
