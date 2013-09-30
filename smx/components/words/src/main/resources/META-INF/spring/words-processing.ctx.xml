@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:cxf="http://camel.apache.org/schema/cxf"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd">
+
+    <cxf:cxfEndpoint id="wordsCXFEndpoint" address="/sdo/webservice/words"
+            serviceClass="org.sdo.coding.components.words.WordsServiceEndpoint"
+            wsdlURL="/META-INF/wsdl/WordsService.wsdl"/>
+
+    <camel:camelContext id="word-service">
+        <camel:route id="words-gateway">
+            <camel:from uri="activemq:dictionary" />
+            <camel:log message="welcome ${body}" />
+        </camel:route>
+        <camel:route id="words-translator-cxf-gateway">
+            <camel:from uri="cxf:bean:wordsCXFEndpoint"/>
+            <camel:setBody>
+                <camel:groovy>
+                    request.body.iterator().next()
+                </camel:groovy>
+            </camel:setBody>
+            <camel:log message="this is a ${body}" />
+            <camel:setBody>
+                <camel:groovy>import org.sdo.coding.components.words.TranslateWordResponse
+
+                new TranslateWordResponse().with{
+                    translations = ['привет', 'здорова']
+                    it
+                }
+                </camel:groovy>
+            </camel:setBody>
+        </camel:route>
+    </camel:camelContext>
+
+</beans>

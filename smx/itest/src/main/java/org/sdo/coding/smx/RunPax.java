@@ -13,7 +13,6 @@ import java.lang.annotation.Target;
  * User: dsemenov
  * Date: 7/25/13
  * Time: 9:18 PM
- * To change this template use File | Settings | File Templates.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
