@@ -27,6 +27,6 @@ class SimplePaxExamSpec extends Specification {
         }
         then: "service should return 'привет' and 'здорова'"
         assert 200 == response.httpResponse.statusCode
-        assert ['привет', 'здорова'] == response.translateWordResponse.translations.collect { it.text() }
+        assert ['привет', 'здороваs'] == response.translateWordResponse.translations.collect { it.text() }
     }
 }

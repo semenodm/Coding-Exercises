@@ -11,7 +11,6 @@ import org.spockframework.runtime.model.SpecInfo
 
 import static org.ops4j.pax.exam.CoreOptions.*
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.*
-import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.DEBUG
 import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.WARN
 import static org.ops4j.pax.exam.karaf.options.configs.CustomProperties.KARAF_FRAMEWORK
 
@@ -55,22 +54,21 @@ class PaxExtension extends AbstractAnnotationDrivenExtension<RunPax> {
                 container = PaxExamRuntime.createContainer(system)
                 container.start()
 
-                Thread.sleep(50000)
+                Retrier.retry {
+                    def ant = new AntBuilder()
+                    ant.sshexec(host: "localhost",
+                            port: '8101',
+                            username: "smx",
+                            password: 'smx',
+                            trust: "yes",
+                            command: "list",
+                            outputproperty: 'result',
+                            knownhosts: '/dev/null')
 
-                def ant = new AntBuilder()
-                ant.sshexec(host: "localhost",
-                        port: '8101',
-                        username: "smx",
-                        password: 'smx',
-                        trust: "yes",
-                        command: "list",
-                        outputproperty: 'result',
-                        knownhosts: '/dev/null')
-
-                def result = ant.project.properties.'result'
-                println "result is $result"
-                def installed = result =~ /(?m)^(.*Started.*)$/
-                println "installed ${installed[0]}"
+                    def result = ant.project.properties.'result'
+                    def wordsBundle = result =~ /(?m)^(.*Started.*words \(1.0.0\).*)$/
+                    if(wordsBundle.size() != 1) throw new RuntimeException("Words bundle is not started")
+                }
 
             }
 
