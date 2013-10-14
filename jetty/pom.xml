@@ -7,6 +7,13 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
+    <parent>
+        <groupId>org.sdo.coding</groupId>
+        <artifactId>exercise</artifactId>
+        <version>1.0</version>
+        <relativePath>../</relativePath>
+    </parent>
+
 	<name>jetty</name>
 	<url>http://maven.apache.org</url>
 

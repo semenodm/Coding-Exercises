@@ -10,6 +10,12 @@
 	<artifactId>spotify</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
+    <parent>
+        <groupId>org.sdo.coding</groupId>
+        <artifactId>exercise</artifactId>
+        <version>1.0</version>
+        <relativePath>../</relativePath>
+    </parent>
 
 	<dependencies>
 		<dependency>
