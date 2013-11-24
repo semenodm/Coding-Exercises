@@ -1,0 +1,20 @@
+template header
+productCode
+manager
+holdingType
+
+package org.sdo.coding.drools.validation;
+import org.sdo.coding.drools.validation.HoldingType;
+template "Holding type derivation"
+
+rule "Holding Type Derivation_@{row.rowNumber}"
+
+    when
+        holding:Holding(productCode:productCode
+        , productCode == "@{productCode}"
+        , managerId @{manager}
+        )
+    then
+        holding.setHoldingType(HoldingType.valueOf("@{holdingType}"));
+end
+end template

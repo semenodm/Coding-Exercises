@@ -1,0 +1,14 @@
+			,,,
+		,RuleSet,	org.sdo.coding.drools.validation,
+		,Notes,Holding type derivation table,
+			,,,
+		,RuleTable Holding types derivation,,
+		,CONDITION,CONDITION,ACTION
+		,holding: Holding,,
+		,productCode,manager,
+	Holding type derivation rules,	Product codes,Manager,	Holding Type
+	Equities,E_PRODUCT_CODE_1,,EQUITY
+	Equities,E_PRODUCT_CODE_2,,EQUITY
+	Closed End Funds,CEF_PRODUCT_CODE_1,,CLOSED_END_FUND
+	Mutual Funds,MF_PRODUCT_CODE_1,,MUTUAL_FUND
+Investment Manager,,!= null,INVESTMENT_MANAGER
