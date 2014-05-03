@@ -1,6 +1,6 @@
 package org.sdo.alg.euler
 
-import java.util
+import scala.collection.immutable.TreeMap
 
 
 /**
@@ -10,44 +10,35 @@ import java.util
  * Time: 2:21 PM
  */
 object Euler7 {
-  type Progressions = List[Stream[Long]]
+  type PrimeProgression = Stream[Long]
 
-  def longStream(seed : Long, step :Long): Stream[Long] = seed #:: longStream(seed + step, step)
+  def longStream(seed: Long, step: Long): PrimeProgression = seed #:: longStream(seed + step, step)
 
-  def applyStream(stream: Stream[Long]) = {
-    val progressions = map.get(stream.head)
-    if (progressions != null) {
-      map.put(stream.head, stream :: progressions)
-    } else {
-      map.put(stream.head, List(stream))
+  def applyStream(primeProgression: PrimeProgression) = {
+    map.get(primeProgression.head) match {
+      case None => map += primeProgression.head -> List(primeProgression)
+      case Some(progression) => map += primeProgression.head -> (primeProgression :: progression)
     }
   }
 
-  def applyStreams(progressions: Progressions): Unit = {
-    if (!progressions.isEmpty) {
-      applyStream(progressions.head.tail)
-      applyStreams(progressions.tail)
-    }
-  }
+  var map = new TreeMap[Long, List[PrimeProgression]]()
 
-  var map = new util.TreeMap[Long, Progressions]()
+  def primeStream(prime: Long): PrimeProgression = {
 
-  def primeStream(prime: Long): Stream[Long] = {
     if (!map.isEmpty) {
-
-      val head = map.firstEntry()
-      if (prime < head.getKey) {
-       // println(prime)
-        map.put(prime * prime, List(longStream(prime * prime, prime)))
-        prime #:: primeStream(prime + 1)
-      } else {
-        val progressions = head.getValue
-        map.pollFirstEntry()
-        applyStreams(progressions)
-        primeStream(prime + 1)
+      map.head match {
+        case (primeMultiple, progressions) =>
+          if (prime < primeMultiple) {
+            map += prime * prime -> List(longStream(prime * prime, prime))
+            prime #:: primeStream(prime + 1)
+          } else {
+            map -= primeMultiple
+            progressions.foreach{ progression => applyStream(progression.tail) }
+            primeStream(prime + 1)
+          }
       }
     } else {
-      map.put(prime * prime, List(longStream(prime * prime, prime)))
+      map += prime * prime -> List(longStream(prime * prime, prime))
       prime #:: primeStream(prime + 1)
     }
   }
