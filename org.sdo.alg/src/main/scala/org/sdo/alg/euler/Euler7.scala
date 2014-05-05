@@ -16,8 +16,8 @@ object Euler7 {
 
   def applyStream(primeProgression: PrimeProgression) = {
     map.get(primeProgression.head) match {
-      case None => map += primeProgression.head -> List(primeProgression)
-      case Some(progression) => map += primeProgression.head -> (primeProgression :: progression)
+      case None => primeProgression.head -> List(primeProgression)
+      case Some(progression) => primeProgression.head -> (primeProgression :: progression)
     }
   }
 
@@ -30,8 +30,7 @@ object Euler7 {
           map += prime * prime -> List(longStream(prime * prime, prime))
           prime #:: primeStream(prime + 1)
         } else {
-          map -= primeMultiple
-          progressions.foreach {
+          map = map - primeMultiple ++ progressions.map {
             progression => applyStream(progression.tail)
           }
           primeStream(prime + 1)
