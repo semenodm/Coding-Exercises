@@ -21,25 +21,21 @@ object Euler7 {
     }
   }
 
-  var map = new TreeMap[Long, List[PrimeProgression]]()
+  var map = TreeMap.empty[Long, List[PrimeProgression]] + (2l -> List(longStream(4l, 2l)))
 
   def primeStream(prime: Long): PrimeProgression = {
-
-    if (!map.isEmpty) {
-      map.head match {
-        case (primeMultiple, progressions) =>
-          if (prime < primeMultiple) {
-            map += prime * prime -> List(longStream(prime * prime, prime))
-            prime #:: primeStream(prime + 1)
-          } else {
-            map -= primeMultiple
-            progressions.foreach{ progression => applyStream(progression.tail) }
-            primeStream(prime + 1)
+    map.headOption match {
+      case Some((primeMultiple, progressions)) =>
+        if (prime < primeMultiple) {
+          map += prime * prime -> List(longStream(prime * prime, prime))
+          prime #:: primeStream(prime + 1)
+        } else {
+          map -= primeMultiple
+          progressions.foreach {
+            progression => applyStream(progression.tail)
           }
-      }
-    } else {
-      map += prime * prime -> List(longStream(prime * prime, prime))
-      prime #:: primeStream(prime + 1)
+          primeStream(prime + 1)
+        }
     }
   }
 
