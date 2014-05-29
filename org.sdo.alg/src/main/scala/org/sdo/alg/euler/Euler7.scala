@@ -39,14 +39,9 @@ object Euler7 {
   }
 
   def main(args: Array[String]) {
-
+    import Utils._
     time {primeStream(2) take 10001 takeRight 1 foreach println }
   }
 
-  def time[A](f: => A) = {
-    val s = System.nanoTime
-    val ret = f
-    println("time: "+(System.nanoTime-s)/1e6+"ms")
-    ret
-  }
+
 }
