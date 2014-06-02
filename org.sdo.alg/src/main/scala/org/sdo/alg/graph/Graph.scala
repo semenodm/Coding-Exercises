@@ -9,13 +9,14 @@ object Graph {
 
   case class Edge(dest: Vertex, weight: Int)
 
-  class Vertex {
+  class Vertex(val label : Int) {
     val edges = mutable.Buffer[Edge]()
 
     def <<(edge: Edge) = {
       edges += edge
       this
     }
+    override def toString = {label.toString}
   }
 
   var exploredVertices = Map.empty[Vertex, Int]
@@ -25,11 +26,11 @@ object Graph {
     else {
       runGreedy match {
         case None => None
-        case Some((edge, distance)) =>
+        case Some((vertex, edge, distance)) =>
           exploredVertices += edge.dest -> distance
           dijkstra(edge.dest, to) match {
             case None => None
-            case Some(l) => Some(from :: l)
+            case Some(l) => if(edge.dest == l.head) Some(vertex :: l) else Some(l)
           }
       }
     }
@@ -39,8 +40,8 @@ object Graph {
     val r = exploredVertices.flatMap {
       case (vertex, distance) =>
         vertex.edges.filter(edge => !exploredVertices.contains(edge.dest))
-          .map(edge => (edge, edge.weight + distance))
+          .map(edge => (vertex, edge, edge.weight + distance))
     }
-    if (r.isEmpty) None else Some(r.minBy(_._2))
+    if (r.isEmpty) None else Some(r.minBy{case (fromVertex, edge, distance) => distance})
   }
 }
