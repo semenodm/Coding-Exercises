@@ -101,7 +101,7 @@ public class FixEngineMicroBenchmark {
 
     @Setup(Level.Invocation)
     public void sendMessage() {
-      producerTemplate.sendBody("direct:fix-input", "8=FIX.4.2\u00019=200\u000135=D\u000134=1084\u000149=IN\u000152=20140922-13:53:07.774\u000156=OUT\u00011=JX-E0020-1-CF\u000111=AAA-0002-09/22/14\u000112=0.21\u000113=2\u000121=2\u000138=11\u000140=1\u000154=1\u000155=3866G7\u000158=ACA-0002-09/22/14\u000159=0\u000160=20140922-13:53:05.401\u000163=0\u000110=4\u0001");
+      producerTemplate.sendBody("direct:fix-input", "MASKED");
     }
   }
 
