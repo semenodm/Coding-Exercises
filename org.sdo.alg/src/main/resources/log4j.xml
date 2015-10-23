@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+
+    <appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">
+        <param name="Threshold" value="error"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p  [%c{1}] %m %n"/>
+        </layout>
+    </appender>
+
+    <logger name="akka">
+        <level value="debug"/>
+    </logger>
+
+    <logger name="akka.cluster">
+        <level value="error"/>
+    </logger>
+
+    <logger name="quickfixj.msg.incoming">
+        <level value="error"/>
+    </logger>
+    <logger name="quickfixj.msg.outgoing">
+        <level value="error"/>
+    </logger>
+
+
+    <root>
+        <priority value="error"/>
+        <appender-ref ref="consoleAppender"/>
+    </root>
+
+</log4j:configuration>
