@@ -23,11 +23,6 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Thread)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class FixEngineMicroBenchmark {
-  public static void init() throws Exception {
-
-
-  }
-
   @State(Scope.Thread)
   public static class SleepyState {
     public CamelContext context;
@@ -36,7 +31,6 @@ public class FixEngineMicroBenchmark {
 
     @Setup
     public void setup() throws Exception {
-      Semaphore s = new Semaphore(1);
       CamelContext camelContext = new DefaultCamelContext();
 
       camelContext.start();
@@ -53,12 +47,6 @@ public class FixEngineMicroBenchmark {
 
                                    }
                                  }).to("direct:out");
-//                                 .process(new Processor() {
-//                                   @Override
-//                                   public void process(Exchange exchange) throws Exception {
-//                                     System.out.println("haha" + exchange);
-//                                   }
-//                                 });
                                }
                              }
       );
@@ -110,14 +98,17 @@ public class FixEngineMicroBenchmark {
       latch.await();
       context = camelContext;
     }
+
+    @Setup(Level.Invocation)
+    public void sendMessage() {
+      producerTemplate.sendBody("direct:fix-input", "8=FIX.4.2\u00019=200\u000135=D\u000134=1084\u000149=IN\u000152=20140922-13:53:07.774\u000156=OUT\u00011=JX-E0020-1-CF\u000111=AAA-0002-09/22/14\u000112=0.21\u000113=2\u000121=2\u000138=11\u000140=1\u000154=1\u000155=3866G7\u000158=ACA-0002-09/22/14\u000159=0\u000160=20140922-13:53:05.401\u000163=0\u000110=4\u0001");
+    }
   }
 
   @Benchmark
   public void measure_quickfix_throughput(SleepyState s) {
-    s.producerTemplate.sendBody("direct:fix-input", "MASKED");
     Object o = s.consumerTemplate.receiveBody("direct:out");
-        assert o != null;
-    //System.out.println("haha" + o);
+    assert o != null;
   }
 
 }
