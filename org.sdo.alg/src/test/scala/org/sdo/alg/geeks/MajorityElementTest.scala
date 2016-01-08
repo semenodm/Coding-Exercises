@@ -15,4 +15,10 @@ class MajorityElementTest extends FlatSpec with Matchers with MajorityElement[In
   it should "2 is a majority element in 2, 2, 3, 5, 2, 2, 6" in {
     findMajorityElement(List(2, 2, 3, 5, 2, 2, 6)) should be(Some(2))
   }
+
+  it should "A is a majority element in AbAcAdA" in {
+     class MyClass extends MajorityElement[String]
+    val m = new MyClass
+    m.findMajorityElement(List("A","b","A","c","A","d","A"))
+  }
 }
