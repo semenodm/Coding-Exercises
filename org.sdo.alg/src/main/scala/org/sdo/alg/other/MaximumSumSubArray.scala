@@ -36,7 +36,7 @@ trait MaximumSumSubArray {
           (idx, 1)
         else (offset, length)
 
-        val (newGlobalMaxSum, rightBound) = if (newSum > globalMaxSum & newSum > 0)
+        val (newGlobalMaxSum, rightBound) = if (newSum > globalMaxSum && newSum > 0)
           (newSum, idx - leftBound + 1)
         else
           (globalMaxSum, r)
