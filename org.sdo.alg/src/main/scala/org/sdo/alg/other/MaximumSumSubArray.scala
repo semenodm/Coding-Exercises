@@ -9,9 +9,9 @@ import org.sdo.alg.other.MaximumSumSubArray.Context
 
 object MaximumSumSubArray {
 
-  case class Context(runningSum: Int,
-                     arrayBounds: (Int, Int),
-                     globalMaxSum: Int,
+  case class Context(runningSum: Int = 0,
+                     arrayBounds: (Int, Int) = (0, 0),
+                     globalMaxSum: Int = Int.MinValue,
                      lastKnown: (Int, (Int, Int)) = (Int.MinValue, (0, 0))
                     )
 
@@ -20,15 +20,23 @@ object MaximumSumSubArray {
 trait MaximumSumSubArray {
 
   def slidingSum(input: List[Int]): List[Int] = {
-    input.zipWithIndex.foldLeft(Context(runningSum = 0, arrayBounds = (0, 0), globalMaxSum = 0)) {
+    input.zipWithIndex.foldLeft(Context()) {
       case (Context(runningSum, (offset, length), globalMaxSum, lastKnown@(lastKnownMax, _)), (element, idx)) =>
         val newSum = if (runningSum + element > 0) runningSum + element else 0
-        val last = if (runningSum > 0 && newSum <= 0 && lastKnownMax < globalMaxSum) (globalMaxSum, (offset, length)) else lastKnown
+
+        val last =
+          if (runningSum > 0 && newSum <= 0 && lastKnownMax < globalMaxSum)
+            (globalMaxSum, (offset, length))
+          else if (element <= 0 && element > lastKnownMax)
+            (element, (idx, 1))
+          else
+            lastKnown
+
         val (leftBound, r) = if (newSum > 0 && runningSum <= 0)
           (idx, 1)
         else (offset, length)
 
-        val (newGlobalMaxSum, rightBound) = if (newSum > globalMaxSum)
+        val (newGlobalMaxSum, rightBound) = if (newSum > globalMaxSum & newSum > 0)
           (newSum, idx - leftBound + 1)
         else
           (globalMaxSum, r)
