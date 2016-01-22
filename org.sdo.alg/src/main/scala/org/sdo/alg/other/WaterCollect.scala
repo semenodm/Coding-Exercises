@@ -1,7 +1,5 @@
 package org.sdo.alg.other
 
-import scala.math
-
 /**
   * Created by dsemenov
   * Date: 1/7/16.
@@ -35,4 +33,36 @@ trait WaterCollect {
     } _1
   }
 
+  def waterCollect2(towers: List[Int]): Int = towers match {
+    case Nil => 0
+    case head :: Nil => 0
+    case head :: tail =>
+
+      val leftTower = head
+      val rightTower = tail.last
+      val waterLevel = math.min(leftTower, rightTower)
+
+      val water = (towers.length - 2) * waterLevel
+      val (nextTowers, leftOrRight) = if (leftTower < rightTower) (towers.drop(1), Left(leftTower)) else (towers.dropRight(1), Right(rightTower))
+      water + waterCollectInternal(nextTowers, waterLevel, leftOrRight)
+  }
+
+  def waterCollectInternal(towers: List[Int], waterLevel: Int, leftOrRight: Either[Int, Int]): Int = towers match {
+    case Nil => 0
+    case head :: Nil => 0
+    case head :: tail =>
+      val leftTower = head
+      val rightTower = tail.last
+      val newWaterLevel = math.max(math.min(leftTower, rightTower), waterLevel)
+      val currentTowerAdjustment = leftOrRight match {
+        case Left(_) if newWaterLevel < leftTower => -waterLevel
+        case Left(_) => -math.min(leftTower, waterLevel)
+        case Right(_) if newWaterLevel < rightTower => -waterLevel
+        case Right(_) => -math.min(rightTower,waterLevel)
+      }
+
+      val waterAdjustment = currentTowerAdjustment + (towers.length - 2) * (newWaterLevel - waterLevel)
+      val (nextTowers, newLeftOrRight) = if (leftTower < rightTower) (towers.drop(1), Left(leftTower)) else (towers.dropRight(1), Right(rightTower))
+      waterAdjustment + waterCollectInternal(nextTowers, newWaterLevel, newLeftOrRight)
+  }
 }
