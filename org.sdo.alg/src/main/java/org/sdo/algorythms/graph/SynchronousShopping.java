@@ -210,7 +210,7 @@ public class SynchronousShopping {
   public static class DirectedEdge {
     private final int v;
     private final int w;
-    private final double weight;
+    private final int weight;
 
     /**
      * Initializes a directed edge from vertex <tt>v</tt> to vertex <tt>w</tt> with
@@ -223,7 +223,7 @@ public class SynchronousShopping {
      *                                   is a negative integer
      * @throws IllegalArgumentException  if <tt>weight</tt> is <tt>NaN</tt>
      */
-    public DirectedEdge(int v, int w, double weight) {
+    public DirectedEdge(int v, int w, int weight) {
       if (v < 0) throw new IndexOutOfBoundsException("Vertex names must be nonnegative integers");
       if (w < 0) throw new IndexOutOfBoundsException("Vertex names must be nonnegative integers");
       if (Double.isNaN(weight)) throw new IllegalArgumentException("Weight is NaN");
@@ -255,7 +255,7 @@ public class SynchronousShopping {
      *
      * @return the weight of the directed edge
      */
-    public double weight() {
+    public int weight() {
       return weight;
     }
 
@@ -420,11 +420,7 @@ public class SynchronousShopping {
   }
 
   public static class DijkstraSP {
-    private final int o;
-    private int mask;
-    private int[] distTo;          // distTo[v] = distance  of shortest s->v path
-    private int[] fish;
-    private DirectedEdge[] edgeTo;    // edgeTo[v] = last edge on shortest s->v path
+    private int[][] distTo;          // distTo[v] = distance  of shortest s->v path
     private MinPQ<SearchEntry> pq;    // priority queue of vertices
 
     /**
@@ -436,23 +432,19 @@ public class SynchronousShopping {
      * @throws IllegalArgumentException if an edge weight is negative
      * @throws IllegalArgumentException unless 0 &le; <tt>s</tt> &le; <tt>V</tt> - 1
      */
-    public DijkstraSP(EdgeWeightedDigraph G, int s, int o, int mask) {
-      this.mask = mask;
+    public DijkstraSP(EdgeWeightedDigraph G, int s, int K) {
       for (DirectedEdge e : G.edges()) {
         if (e.weight() < 0)
           throw new IllegalArgumentException("edge " + e + " has negative weight");
       }
 
-      this.o = o;
-
-      distTo = new int[G.V()];
-      fish = new int[G.V()];
-      edgeTo = new DirectedEdge[G.V()];
+      distTo = new int[G.V()][1 << K];
       for (int v = 0; v < G.V(); v++) {
-        distTo[v] = Integer.MAX_VALUE;
+        for (int j = 0; j < 1 << K; j++) {
+          distTo[v][j] = Integer.MAX_VALUE;
+        }
       }
-      distTo[s] = 0;
-      fish[s] = G.vertices[s];
+      distTo[s][G.vertices[s]] = 0;
       SearchEntry searchEntry = new SearchEntry();
       searchEntry.dist = 0;
       searchEntry.fish = G.vertices[s];
@@ -464,13 +456,6 @@ public class SynchronousShopping {
       pq.insert(searchEntry);
       while (!pq.isEmpty()) {
         searchEntry = pq.delMin();
-        distTo[searchEntry.shop] = searchEntry.dist;
-        fish[searchEntry.shop] = searchEntry.fish;
-        int t = this.mask & searchEntry.fish;
-
-        if (searchEntry.shop == o && t == this.mask) {
-          break;
-        }
         for (DirectedEdge e : G.adj(searchEntry.shop))
           relax(searchEntry, e, G);
       }
@@ -481,13 +466,14 @@ public class SynchronousShopping {
       int v = e.from(), w = e.to();
       int bw = g.vertices[w] | searchEntry.fish;
       SearchEntry next = new SearchEntry();
-      next.dist = searchEntry.dist + (int) e.weight();
+      next.dist = searchEntry.dist + e.weight();
       next.shop = w;
       next.fish = bw;
-      if (next.dist >= distTo[next.shop] && (fish[next.shop] | (fish[next.shop] ^ next.fish)) == fish[next.shop]) {
+      //&& (fish[next.shop] | (fish[next.shop] ^ next.fish)) == fish[next.shop]
+      if (next.dist >= distTo[next.shop][bw]) {
         return;
       }
-
+      distTo[next.shop][next.fish] = next.dist;
       pq.insert(next);
     }
 
@@ -498,35 +484,8 @@ public class SynchronousShopping {
      * @return the length of a shortest path from the source vertex <tt>s</tt> to vertex <tt>v</tt>;
      * <tt>Double.POSITIVE_INFINITY</tt> if no such path
      */
-    public int distTo(int v) {
-      return distTo[v];
-    }
-
-    /**
-     * Returns true if there is a path from the source vertex <tt>s</tt> to vertex <tt>v</tt>.
-     *
-     * @param v the destination vertex
-     * @return <tt>true</tt> if there is a path from the source vertex
-     * <tt>s</tt> to vertex <tt>v</tt>; <tt>false</tt> otherwise
-     */
-    public boolean hasPathTo(int v) {
-      return distTo[v] < Integer.MAX_VALUE;
-    }
-
-    /**
-     * Returns a shortest path from the source vertex <tt>s</tt> to vertex <tt>v</tt>.
-     *
-     * @param v the destination vertex
-     * @return a shortest path from the source vertex <tt>s</tt> to vertex <tt>v</tt>
-     * as an iterable of edges, and <tt>null</tt> if no such path
-     */
-    public Iterable<DirectedEdge> pathTo(int v) {
-      if (!hasPathTo(v)) return null;
-      Stack<DirectedEdge> path = new Stack<>();
-      for (DirectedEdge e = edgeTo[v]; e != null; e = edgeTo[e.from()]) {
-        path.push(e);
-      }
-      return path;
+    public int distTo(int v, int mask) {
+      return distTo[v][mask];
     }
   }
 
@@ -556,48 +515,21 @@ public class SynchronousShopping {
 
     }
 
+    DijkstraSP dijkstraSP = new DijkstraSP(shoppingCentersNetwork, 0, K);
+
     int result = Integer.MAX_VALUE;
-    Map<Integer, Integer> resultCache = new HashMap<>();
-    Map<Integer, Integer> fishCache = new HashMap<>();
-    int i = 0;
-    while (i < (1 << K)) {
-      int cat1Dist = Integer.MAX_VALUE;
-      int cat2Dist = Integer.MAX_VALUE;
-      if (!resultCache.containsKey(i)) {
-        DijkstraSP dijkstraSP = new DijkstraSP(shoppingCentersNetwork, 0, N - 1, i);
-        resultCache.put(i, dijkstraSP.distTo(N - 1));
-        resultCache.put(dijkstraSP.fish[N - 1], dijkstraSP.distTo(N - 1));
-        fishCache.put(i, dijkstraSP.fish[N - 1]);
-        fishCache.put(dijkstraSP.fish[N - 1], dijkstraSP.fish[N - 1]);
-        cat1Dist = dijkstraSP.distTo(N - 1);
-
-        int fish = ~dijkstraSP.fish[N - 1] & (1 << K) - 1;
-        if (resultCache.containsKey(fish)) {
-          cat2Dist = resultCache.get(fish);
-        } else {
-          DijkstraSP dijkstraSP2 = new DijkstraSP(shoppingCentersNetwork, 0, N - 1, fish);
-          cat2Dist = dijkstraSP2.distTo(N - 1);
-          resultCache.put(fish, dijkstraSP2.distTo(N - 1));
-          resultCache.put(dijkstraSP2.fish[N - 1], dijkstraSP2.distTo(N - 1));
-          fishCache.put(fish, dijkstraSP2.fish[N - 1]);
-          fishCache.put(dijkstraSP2.fish[N - 1], dijkstraSP2.fish[N - 1]);
+    for (int i = 0; i < 1 << K; i++) {
+      for (int j = 0; j < 1 << K; j++) {
+        if ((i | j) == ((1 << K) - 1)) {
+          int distTo1 = dijkstraSP.distTo(N - 1, i);
+          int distTo2 = dijkstraSP.distTo(N - 1, j);
+          distTo1 = distTo1 > distTo2 ? distTo1 : distTo2;
+          if (result > distTo1)
+            result = distTo1;
         }
-
-      } else {
-        cat1Dist = resultCache.get(i);
-        int fish = ~fishCache.get(i) & (1 << K) - 1;
-        cat2Dist = resultCache.get(fish);
       }
-
-      //System.out.println(String.format("%s %s", dijkstraSP.fish[N - 1], dijkstraSP2.fish[N - 1]));
-      cat1Dist = cat2Dist > cat1Dist ? cat2Dist : cat1Dist;
-      //System.out.println(String.format("%s : %s", s, cat2Dist));
-      if (cat1Dist < result)
-        result = cat1Dist;
-      if (i > (1 << K) / 2) break;
-      i = fishCache.get(i) + 1;
-
     }
+
 
     System.out.println(result);
   }
