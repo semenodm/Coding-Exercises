@@ -464,7 +464,7 @@ public class SynchronousShopping {
       pq.insert(searchEntry);
       while (!pq.isEmpty()) {
         searchEntry = pq.delMin();
-        int t = this.mask  & searchEntry.fish;
+        int t = this.mask & searchEntry.fish;
 
         if (searchEntry.shop == o && t == this.mask) {
           distTo[o] = searchEntry.dist;
@@ -484,8 +484,8 @@ public class SynchronousShopping {
       next.dist = searchEntry.dist + (int) e.weight();
       next.shop = w;
       next.fish = bw;
-      if (next.dist >= distTo[next.shop] && fish[next.shop] == next.fish) {
-        return ;
+      if (next.dist >= distTo[next.shop] && (fish[next.shop] | (fish[next.shop] ^ next.fish)) == fish[next.shop]) {
+        return;
       }
       distTo[next.shop] = next.dist;
       fish[next.shop] = next.fish;
@@ -558,24 +558,45 @@ public class SynchronousShopping {
     }
 
     int result = Integer.MAX_VALUE;
-
+    Map<Integer, Integer> resultCache = new HashMap<>();
+    Map<Integer, Integer> fishCache = new HashMap<>();
     int i = 0;
     while (i < (1 << K)) {
+      int cat1Dist = Integer.MAX_VALUE;
+      int cat2Dist = Integer.MAX_VALUE;
+      if (!resultCache.containsKey(i)) {
+        DijkstraSP dijkstraSP = new DijkstraSP(shoppingCentersNetwork, 0, N - 1, i);
+        resultCache.put(i, dijkstraSP.distTo(N - 1));
+        resultCache.put(dijkstraSP.fish[N - 1], dijkstraSP.distTo(N - 1));
+        fishCache.put(i, dijkstraSP.fish[N - 1]);
+        fishCache.put(dijkstraSP.fish[N - 1], dijkstraSP.fish[N - 1]);
+        cat1Dist = dijkstraSP.distTo(N - 1);
 
-      //System.out.println(String.format("mask : %s", mask));
-      DijkstraSP dijkstraSP = new DijkstraSP(shoppingCentersNetwork, 0, N - 1, i);
-      int s = dijkstraSP.distTo(N - 1);
+        int fish = ~dijkstraSP.fish[N - 1] & (1 << K) - 1;
+        if (resultCache.containsKey(fish)) {
+          cat2Dist = resultCache.get(fish);
+        } else {
+          DijkstraSP dijkstraSP2 = new DijkstraSP(shoppingCentersNetwork, 0, N - 1, fish);
+          cat2Dist = dijkstraSP2.distTo(N - 1);
+          resultCache.put(fish, dijkstraSP2.distTo(N - 1));
+          resultCache.put(dijkstraSP2.fish[N - 1], dijkstraSP2.distTo(N - 1));
+          fishCache.put(fish, dijkstraSP2.fish[N - 1]);
+          fishCache.put(dijkstraSP2.fish[N - 1], dijkstraSP2.fish[N - 1]);
+        }
 
-      int fish = ~dijkstraSP.fish[N - 1] & (1 << K) - 1;
-      DijkstraSP dijkstraSP2 = new DijkstraSP(shoppingCentersNetwork, 0, N - 1, fish);
+      } else {
+        cat1Dist = resultCache.get(i);
+        int fish = ~fishCache.get(i) & (1 << K) - 1;
+        cat2Dist = resultCache.get(fish);
+      }
+
       //System.out.println(String.format("%s %s", dijkstraSP.fish[N - 1], dijkstraSP2.fish[N - 1]));
-      int cat2Dist = dijkstraSP2.distTo(N - 1);
-      s = cat2Dist > s ? cat2Dist : s;
+      cat1Dist = cat2Dist > cat1Dist ? cat2Dist : cat1Dist;
       //System.out.println(String.format("%s : %s", s, cat2Dist));
-      if (s < result)
-        result = s;
+      if (cat1Dist < result)
+        result = cat1Dist;
       if (i > (1 << K) / 2) break;
-      i = dijkstraSP.fish[N - 1] + 1;
+      i = fishCache.get(i) + 1;
 
     }
 
