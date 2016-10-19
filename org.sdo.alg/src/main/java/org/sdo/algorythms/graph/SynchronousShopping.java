@@ -26,7 +26,6 @@ public class SynchronousShopping {
 
       SearchEntry that = (SearchEntry) o;
 
-      if (dist != that.dist) return false;
       if (shop != that.shop) return false;
       return fish != null ? fish.equals(that.fish) : that.fish == null;
 
@@ -34,9 +33,8 @@ public class SynchronousShopping {
 
     @Override
     public int hashCode() {
-      int result = dist;
+      int result = shop;
       result = 31 * result + (fish != null ? fish.hashCode() : 0);
-      result = 31 * result + shop;
       return result;
     }
   }
@@ -447,7 +445,6 @@ public class SynchronousShopping {
     private BitSet[] fish;
     private DirectedEdge[] edgeTo;    // edgeTo[v] = last edge on shortest s->v path
     private MinPQ<SearchEntry> pq;    // priority queue of vertices
-    private final Set<SearchEntry> visited;
 
     /**
      * Computes a shortest-paths tree from the source vertex <tt>s</tt> to every other
@@ -483,16 +480,15 @@ public class SynchronousShopping {
 
 
       // relax vertices in order of distance from s
-      visited = new HashSet<>();
       pq = new MinPQ<>(G.V());
       pq.insert(searchEntry);
       BitSet t = (BitSet) this.mask.clone();
       t.and(searchEntry.fish);
-      visited.add(searchEntry);
       while (!pq.isEmpty()) {
         searchEntry = pq.delMin();
         t = (BitSet) this.mask.clone();
         t.and(searchEntry.fish);
+
         if (searchEntry.shop == o && t.equals(this.mask)) {
           distTo[o] = searchEntry.dist;
           fish[o] = searchEntry.fish;
@@ -504,7 +500,7 @@ public class SynchronousShopping {
     }
 
     // relax edge e and update pq if changed
-    private SearchEntry relax(SearchEntry searchEntry, DirectedEdge e, EdgeWeightedDigraph g) {
+    private void relax(SearchEntry searchEntry, DirectedEdge e, EdgeWeightedDigraph g) {
       int v = e.from(), w = e.to();
       BitSet bw = ((BitSet) g.vertices[w].clone());
       bw.or(searchEntry.fish);
@@ -512,24 +508,12 @@ public class SynchronousShopping {
       next.dist = searchEntry.dist + (int) e.weight();
       next.shop = w;
       next.fish = bw;
-      if (!visited.contains(next)) {
-        pq.insert(next);
-        visited.add(next);
+      if (next.dist >= distTo[next.shop] && fish[next.shop].equals(next.fish)) {
+        return ;
       }
-      return next;
-
-      //if (distTo[w] > distTo[v] + (int) e.weight()) {
-//        distTo[w] = distTo[v] + (int) e.weight();
-//        edgeTo[w] = e;
-//        fish[w] = bw;
-
-//        if (w == o && mask.equals(this.mask)) {
-//          pq = new MinPQ<>();
-//        } else {
-//          if (pq.contains(w)) pq.changeKey(w, distTo[w]);
-//          else pq.insert(w, distTo[w]);
-//        }
-      //}
+      distTo[next.shop] = next.dist;
+      fish[next.shop] = next.fish;
+      pq.insert(next);
     }
 
     /**
@@ -599,18 +583,14 @@ public class SynchronousShopping {
 
     int result = Integer.MAX_VALUE;
 
-//    DijkstraSP dijkstraSP = new DijkstraSP(shoppingCentersNetwork, 0, N - 1, BitSet.valueOf(new long[]{0b1100L}));
-//    int s = dijkstraSP.distTo(N - 1);
-//
-//    System.out.println(dijkstraSP.distTo[N - 1]);
-
-
-    for (int i = 0; i < 1 << K; i++) {
+    int i = 0;
+    while (i < (1 << K)) {
       BitSet mask = BitSet.valueOf(new long[]{i});
 
       //System.out.println(String.format("mask : %s", mask));
       DijkstraSP dijkstraSP = new DijkstraSP(shoppingCentersNetwork, 0, N - 1, mask);
       int s = dijkstraSP.distTo(N - 1);
+
 
       BitSet fish = (BitSet) dijkstraSP.fish[N - 1].clone();
       fish.flip(0, K);
@@ -621,6 +601,9 @@ public class SynchronousShopping {
       //System.out.println(String.format("%s : %s", s, cat2Dist));
       if (s < result)
         result = s;
+      if (i > (1 << K) / 2) break;
+      i = (int) (dijkstraSP.fish[N - 1].toLongArray()[0] + 1);
+
     }
 
     System.out.println(result);
