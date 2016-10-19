@@ -464,11 +464,11 @@ public class SynchronousShopping {
       pq.insert(searchEntry);
       while (!pq.isEmpty()) {
         searchEntry = pq.delMin();
+        distTo[searchEntry.shop] = searchEntry.dist;
+        fish[searchEntry.shop] = searchEntry.fish;
         int t = this.mask & searchEntry.fish;
 
         if (searchEntry.shop == o && t == this.mask) {
-          distTo[o] = searchEntry.dist;
-          fish[o] = searchEntry.fish;
           break;
         }
         for (DirectedEdge e : G.adj(searchEntry.shop))
@@ -487,8 +487,7 @@ public class SynchronousShopping {
       if (next.dist >= distTo[next.shop] && (fish[next.shop] | (fish[next.shop] ^ next.fish)) == fish[next.shop]) {
         return;
       }
-      distTo[next.shop] = next.dist;
-      fish[next.shop] = next.fish;
+
       pq.insert(next);
     }
 
