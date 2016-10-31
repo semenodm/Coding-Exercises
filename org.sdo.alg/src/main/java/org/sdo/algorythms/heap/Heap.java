@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Heap {
+public class Heap<T extends Comparable<T>> {
 	private static final int ROOT_INDEX = 0;
 
-	private List<Integer> storage;
+	private List<T> storage;
 
-	public Heap(Integer[] integers) {
-		this.storage = new ArrayList<Integer>(Arrays.asList(integers));
+	public Heap(T[] integers) {
+		this.storage = new ArrayList<T>(Arrays.<T>asList(integers));
 	}
 
 	public Heap() {
-		this.storage = new ArrayList<Integer>();
+		this.storage = new ArrayList<T>();
 	}
 
 	private int parentIndex(int inx) {
@@ -29,17 +29,17 @@ public class Heap {
 		return getRightChildIndex(parentIndex) - 1;
 	}
 
-	public Integer extract() {
+	public T extract() {
 		if (isEmpty()) {
 			throw new UnsupportedOperationException("Can not extract from empty heap");
 		}
-		Integer last = storage.remove(lastIndex());
+		T last = storage.remove(lastIndex());
 		if (isEmpty()) {
 			return last;
 		}
-		Integer result = storage.get(0);
+		T result = storage.get(0);
 		storage.set(0, last);
-		bubleDown(ROOT_INDEX);
+		bubbleDown(ROOT_INDEX);
 		return result;
 	}
 
@@ -47,11 +47,11 @@ public class Heap {
 		return storage.isEmpty();
 	}
 
-	private void bubleDown(int rootIndex) {
+	private void bubbleDown(int rootIndex) {
 		int candidateInx = getCandidateInx(rootIndex);
 		if (candidateInx != -1 && violateHeapRule(candidateInx, rootIndex)) {
 			swap(rootIndex, candidateInx);
-			bubleDown(candidateInx);
+			bubbleDown(candidateInx);
 		}
 	}
 
@@ -76,12 +76,12 @@ public class Heap {
 		return storage.size();
 	}
 
-	public void insert(Integer value) {
+	public void insert(T value) {
 		storage.add(value);
 		bubbleUp(storage.size() - 1, value);
 	}
 
-	private void bubbleUp(int currentInx, Integer current) {
+	private void bubbleUp(int currentInx, T current) {
 		int parentInx = parentIndex(currentInx);
 		if (!isRoot(currentInx) && violateHeapRule(currentInx, parentInx)) {
 			swap(currentInx, parentInx);
@@ -96,7 +96,7 @@ public class Heap {
 
 	private void swap(int currentInx, int parentInx) {
 
-		Integer temp = storage.get(currentInx);
+		T temp = storage.get(currentInx);
 		storage.set(currentInx, storage.get(parentInx));
 		storage.set(parentInx, temp);
 
@@ -106,18 +106,18 @@ public class Heap {
 		return storage.get(parentInx).compareTo(storage.get(currentInx)) > 0;
 	}
 
-	public Integer root() {
+	public T root() {
 		return storage.get(0);
 	}
 
-	public void heapify(Integer[] input) {
-		for (Integer i : input) {
+	public void heapify(T[] input) {
+		for (T i : input) {
 			insert(i);
 		}
 	}
 
-	public Integer[] drain() {
-		Integer[] drainedHeap = new Integer[size()];
+	public T[] drain() {
+		T[] drainedHeap = (T[]) new Object[size()];
 		for (int i = 0; i < drainedHeap.length; i++) {
 			drainedHeap[i] = extract();
 		}
