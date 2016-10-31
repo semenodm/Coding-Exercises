@@ -1,6 +1,5 @@
 package org.sdo.algorythms.graph;
 
-
 import java.util.*;
 
 /**
@@ -23,7 +22,6 @@ public class SynchronousShopping {
   public static class MinPQ<Key> {
     private Key[] pq;                    // store items at indices 1 to N
     private int N;                       // number of items on priority queue
-    private Comparator<Key> comparator;  // optional comparator
 
     /**
      * Initializes an empty priority queue with the given initial capacity.
@@ -35,51 +33,6 @@ public class SynchronousShopping {
       N = 0;
     }
 
-    /**
-     * Initializes an empty priority queue.
-     */
-    public MinPQ() {
-      this(1);
-    }
-
-    /**
-     * Initializes an empty priority queue with the given initial capacity,
-     * using the given comparator.
-     *
-     * @param initCapacity the initial capacity of this priority queue
-     * @param comparator   the order to use when comparing keys
-     */
-    public MinPQ(int initCapacity, Comparator<Key> comparator) {
-      this.comparator = comparator;
-      pq = (Key[]) new Object[initCapacity + 1];
-      N = 0;
-    }
-
-    /**
-     * Initializes an empty priority queue using the given comparator.
-     *
-     * @param comparator the order to use when comparing keys
-     */
-    public MinPQ(Comparator<Key> comparator) {
-      this(1, comparator);
-    }
-
-    /**
-     * Initializes a priority queue from the array of keys.
-     * <p>
-     * Takes time proportional to the number of keys, using sink-based heap construction.
-     *
-     * @param keys the array of keys
-     */
-    public MinPQ(Key[] keys) {
-      N = keys.length;
-      pq = (Key[]) new Object[keys.length + 1];
-      for (int i = 0; i < N; i++)
-        pq[i + 1] = keys[i];
-      for (int k = N / 2; k >= 1; k--)
-        sink(k);
-      assert isMinHeap();
-    }
 
     /**
      * Returns true if this priority queue is empty.
@@ -100,16 +53,6 @@ public class SynchronousShopping {
       return N;
     }
 
-    /**
-     * Returns a smallest key on this priority queue.
-     *
-     * @return a smallest key on this priority queue
-     * @throws NoSuchElementException if this priority queue is empty
-     */
-    public Key min() {
-      if (isEmpty()) throw new NoSuchElementException("Priority queue underflow");
-      return pq[1];
-    }
 
     // helper function to double the size of the heap array
     private void resize(int capacity) {
@@ -128,12 +71,12 @@ public class SynchronousShopping {
      */
     public void insert(Key x) {
       // double size of array if necessary
-      if (N == pq.length - 1) resize(2 * pq.length);
+      //if (N == pq.length - 1) resize(2 * pq.length);
 
       // add x, and percolate it up to maintain heap invariant
       pq[++N] = x;
       swim(N);
-      assert isMinHeap();
+      //assert isMinHeap();
     }
 
     /**
@@ -148,8 +91,8 @@ public class SynchronousShopping {
       Key min = pq[N--];
       sink(1);
       pq[N + 1] = null;         // avoid loitering and help with garbage collection
-      if ((N > 0) && (N == (pq.length - 1) / 4)) resize(pq.length / 2);
-      assert isMinHeap();
+      //if ((N > 0) && (N == (pq.length - 1) / 4)) resize(pq.length / 2);
+      //assert isMinHeap();
       return min;
     }
 
@@ -179,11 +122,7 @@ public class SynchronousShopping {
      * Helper functions for compares and swaps.
      ***************************************************************************/
     private boolean greater(int i, int j) {
-      if (comparator == null) {
-        return ((Comparable<Key>) pq[i]).compareTo(pq[j]) > 0;
-      } else {
-        return comparator.compare(pq[i], pq[j]) > 0;
-      }
+      return ((Comparable<Key>) pq[i]).compareTo(pq[j]) > 0;
     }
 
     private void exch(int i, int j) {
@@ -207,25 +146,26 @@ public class SynchronousShopping {
     }
   }
 
-  public static class DirectedEdge {
+  public static class Edge implements Comparable<Edge> {
+
     private final int v;
     private final int w;
     private final int weight;
 
     /**
-     * Initializes a directed edge from vertex <tt>v</tt> to vertex <tt>w</tt> with
-     * the given <tt>weight</tt>.
+     * Initializes an edge between vertices {@code v} and {@code w} of
+     * the given {@code weight}.
      *
-     * @param v      the tail vertex
-     * @param w      the head vertex
-     * @param weight the weight of the directed edge
-     * @throws IndexOutOfBoundsException if either <tt>v</tt> or <tt>w</tt>
+     * @param v      one vertex
+     * @param w      the other vertex
+     * @param weight the weight of this edge
+     * @throws IndexOutOfBoundsException if either {@code v} or {@code w}
      *                                   is a negative integer
-     * @throws IllegalArgumentException  if <tt>weight</tt> is <tt>NaN</tt>
+     * @throws IllegalArgumentException  if {@code weight} is {@code NaN}
      */
-    public DirectedEdge(int v, int w, int weight) {
-      if (v < 0) throw new IndexOutOfBoundsException("Vertex names must be nonnegative integers");
-      if (w < 0) throw new IndexOutOfBoundsException("Vertex names must be nonnegative integers");
+    public Edge(int v, int w, int weight) {
+      if (v < 0) throw new IndexOutOfBoundsException("Vertex name must be a nonnegative integer");
+      if (w < 0) throw new IndexOutOfBoundsException("Vertex name must be a nonnegative integer");
       if (Double.isNaN(weight)) throw new IllegalArgumentException("Weight is NaN");
       this.v = v;
       this.w = w;
@@ -233,52 +173,75 @@ public class SynchronousShopping {
     }
 
     /**
-     * Returns the tail vertex of the directed edge.
+     * Returns the weight of this edge.
      *
-     * @return the tail vertex of the directed edge
-     */
-    public int from() {
-      return v;
-    }
-
-    /**
-     * Returns the head vertex of the directed edge.
-     *
-     * @return the head vertex of the directed edge
-     */
-    public int to() {
-      return w;
-    }
-
-    /**
-     * Returns the weight of the directed edge.
-     *
-     * @return the weight of the directed edge
+     * @return the weight of this edge
      */
     public int weight() {
       return weight;
     }
 
     /**
-     * Returns a string representation of the directed edge.
+     * Returns either endpoint of this edge.
      *
-     * @return a string representation of the directed edge
+     * @return either endpoint of this edge
      */
-    public String toString() {
-      return v + "->" + w + " " + String.format("%5.2f", weight);
+    public int either() {
+      return v;
     }
 
+    /**
+     * Returns the endpoint of this edge that is different from the given vertex.
+     *
+     * @param vertex one endpoint of this edge
+     * @return the other endpoint of this edge
+     * @throws IllegalArgumentException if the vertex is not one of the
+     *                                  endpoints of this edge
+     */
+    public int other(int vertex) {
+      if (vertex == v) return w;
+      else if (vertex == w) return v;
+      else throw new IllegalArgumentException("Illegal endpoint");
+    }
+
+    /**
+     * Compares two edges by weight.
+     * Note that {@code compareTo()} is not consistent with {@code equals()},
+     * which uses the reference equality implementation inherited from {@code Object}.
+     *
+     * @param that the other edge
+     * @return a negative integer, zero, or positive integer depending on whether
+     * the weight of this is less than, equal to, or greater than the
+     * argument edge
+     */
+    @Override
+    public int compareTo(Edge that) {
+      return Double.compare(this.weight, that.weight);
+    }
+
+    /**
+     * Returns a string representation of this edge.
+     *
+     * @return a string representation of this edge
+     */
+    public String toString() {
+      return String.format("%d-%d %.5f", v, w, weight);
+    }
+
+    /**
+     * Unit tests the {@code Edge} data type.
+     *
+     * @param args the command-line arguments
+     */
   }
 
 
   public static class EdgeWeightedDigraph {
-    private static final String NEWLINE = System.getProperty("line.separator");
 
     private final int V;                // number of vertices in this digraph
     private final int[] vertices;
     private int E;                      // number of edges in this digraph
-    private List<DirectedEdge>[] adj;    // adj[v] = adjacency list for vertex v
-    private int[] indegree;             // indegree[v] = indegree of vertex v
+    private List<Edge>[] adj;    // adj[v] = adjacency list for vertex v
 
     /**
      * Initializes an empty edge-weighted digraph with <tt>V</tt> vertices and 0 edges.
@@ -291,8 +254,7 @@ public class SynchronousShopping {
       this.V = V;
       this.vertices = new int[V];
       this.E = 0;
-      this.indegree = new int[V];
-      adj = (List<DirectedEdge>[]) new LinkedList[V];
+      adj = (List<Edge>[]) new LinkedList[V];
       for (int v = 0; v < V; v++) {
         adj[v] = new LinkedList<>();
       }
@@ -317,25 +279,17 @@ public class SynchronousShopping {
       return E;
     }
 
-    // throw an IndexOutOfBoundsException unless 0 <= v < V
-    private void validateVertex(int v) {
-      if (v < 0 || v >= V)
-        throw new IndexOutOfBoundsException("vertex " + v + " is not between 0 and " + (V - 1));
-    }
-
     /**
      * Adds the directed edge <tt>e</tt> to this edge-weighted digraph.
      *
      * @param e the edge
      * @throws IndexOutOfBoundsException unless endpoints of edge are between 0 and V-1
      */
-    public void addEdge(DirectedEdge e) {
-      int v = e.from();
-      int w = e.to();
-      validateVertex(v);
-      validateVertex(w);
+    public void addEdge(Edge e) {
+      int v = e.either();
+      int w = e.other(v);
       adj[v].add(e);
-      indegree[w]++;
+      adj[w].add(e);
       E++;
     }
 
@@ -347,72 +301,10 @@ public class SynchronousShopping {
      * @return the directed edges incident from vertex <tt>v</tt> as an Iterable
      * @throws IndexOutOfBoundsException unless 0 <= v < V
      */
-    public Iterable<DirectedEdge> adj(int v) {
-      validateVertex(v);
+    public Iterable<Edge> adj(int v) {
       return adj[v];
     }
 
-    /**
-     * Returns the number of directed edges incident from vertex <tt>v</tt>.
-     * This is known as the <em>outdegree</em> of vertex <tt>v</tt>.
-     *
-     * @param v the vertex
-     * @return the outdegree of vertex <tt>v</tt>
-     * @throws IndexOutOfBoundsException unless 0 <= v < V
-     */
-    public int outdegree(int v) {
-      validateVertex(v);
-      return adj[v].size();
-    }
-
-    /**
-     * Returns the number of directed edges incident to vertex <tt>v</tt>.
-     * This is known as the <em>indegree</em> of vertex <tt>v</tt>.
-     *
-     * @param v the vertex
-     * @return the indegree of vertex <tt>v</tt>
-     * @throws IndexOutOfBoundsException unless 0 <= v < V
-     */
-    public int indegree(int v) {
-      validateVertex(v);
-      return indegree[v];
-    }
-
-    /**
-     * Returns all directed edges in this edge-weighted digraph.
-     * To iterate over the edges in this edge-weighted digraph, use foreach notation:
-     * <tt>for (DirectedEdge e : G.edges())</tt>.
-     *
-     * @return all edges in this edge-weighted digraph, as an iterable
-     */
-    public Iterable<DirectedEdge> edges() {
-      List<DirectedEdge> list = new ArrayList<>();
-      for (int v = 0; v < V; v++) {
-        for (DirectedEdge e : adj(v)) {
-          list.add(e);
-        }
-      }
-      return list;
-    }
-
-    /**
-     * Returns a string representation of this edge-weighted digraph.
-     *
-     * @return the number of vertices <em>V</em>, followed by the number of edges <em>E</em>,
-     * followed by the <em>V</em> adjacency lists of edges
-     */
-    public String toString() {
-      StringBuilder s = new StringBuilder();
-      s.append(V + " " + E + NEWLINE);
-      for (int v = 0; v < V; v++) {
-        s.append(v + ": ");
-        for (DirectedEdge e : adj[v]) {
-          s.append(e + "  ");
-        }
-        s.append(NEWLINE);
-      }
-      return s.toString();
-    }
 
     public void addVertex(int i, int fishMask) {
       this.vertices[i] = fishMask;
@@ -433,14 +325,11 @@ public class SynchronousShopping {
      * @throws IllegalArgumentException unless 0 &le; <tt>s</tt> &le; <tt>V</tt> - 1
      */
     public DijkstraSP(EdgeWeightedDigraph G, int s, int K) {
-      for (DirectedEdge e : G.edges()) {
-        if (e.weight() < 0)
-          throw new IllegalArgumentException("edge " + e + " has negative weight");
-      }
+      int masks = 1 << K;
 
-      distTo = new int[G.V()][1 << K];
+      distTo = new int[G.V()][masks];
       for (int v = 0; v < G.V(); v++) {
-        for (int j = 0; j < 1 << K; j++) {
+        for (int j = 0; j < masks; j++) {
           distTo[v][j] = Integer.MAX_VALUE;
         }
       }
@@ -452,24 +341,23 @@ public class SynchronousShopping {
 
 
       // relax vertices in order of distance from s
-      pq = new MinPQ<>(G.V());
+      pq = new MinPQ<>(G.V()*100);
       pq.insert(searchEntry);
       while (!pq.isEmpty()) {
         searchEntry = pq.delMin();
-        for (DirectedEdge e : G.adj(searchEntry.shop))
+        for (Edge e : G.adj(searchEntry.shop))
           relax(searchEntry, e, G);
       }
     }
 
     // relax edge e and update pq if changed
-    private void relax(SearchEntry searchEntry, DirectedEdge e, EdgeWeightedDigraph g) {
-      int v = e.from(), w = e.to();
+    private void relax(SearchEntry searchEntry, Edge e, EdgeWeightedDigraph g) {
+      int w = e.other(searchEntry.shop);
       int bw = g.vertices[w] | searchEntry.fish;
       SearchEntry next = new SearchEntry();
       next.dist = searchEntry.dist + e.weight();
       next.shop = w;
       next.fish = bw;
-      //&& (fish[next.shop] | (fish[next.shop] ^ next.fish)) == fish[next.shop]
       if (next.dist >= distTo[next.shop][bw]) {
         return;
       }
@@ -510,9 +398,7 @@ public class SynchronousShopping {
       int c1 = Integer.parseInt(road[0]) - 1;
       int c2 = Integer.parseInt(road[1]) - 1;
       int w = Integer.parseInt(road[2]);
-      shoppingCentersNetwork.addEdge(new DirectedEdge(c1, c2, w));
-      shoppingCentersNetwork.addEdge(new DirectedEdge(c2, c1, w));
-
+      shoppingCentersNetwork.addEdge(new Edge(c1, c2, w));
     }
 
     DijkstraSP dijkstraSP = new DijkstraSP(shoppingCentersNetwork, 0, K);
